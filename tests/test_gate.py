@@ -35,6 +35,13 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertIn("inputs.cache-save-on-dispatch && github.event_name == 'workflow_dispatch'", condition)
         self.assertEqual(WORKFLOW['on']['workflow_call']['inputs']['cache-save-on-dispatch']['default'], 'false')
 
+    def test_bin_cache_is_on_by_default_and_a_caller_can_turn_it_off(self):
+        # rust-cache's save deletes files in ~/.cargo/bin it didn't install, rustup among them, so a
+        # self-hosted runner that keeps rustup there passes cache-bin: false.
+        cache = next(s for s in STEPS if 'rust-cache' in s.get('uses', ''))
+        self.assertEqual(cache['with']['cache-bin'], '${{ inputs.cache-bin }}')
+        self.assertEqual(WORKFLOW['on']['workflow_call']['inputs']['cache-bin']['default'], 'true')
+
     def test_packages_are_optional_and_empty_installs_none(self):
         packages = WORKFLOW['on']['workflow_call']['inputs']['packages']
         self.assertEqual(packages['required'], 'false')

@@ -88,6 +88,11 @@ on:
         type: boolean
         required: false
         default: false
+      cache-bin:
+        description: "Cache ~/.cargo/bin. A self-hosted runner that keeps rustup there sets this to false: when rust-cache saves, it deletes the files in ~/.cargo/bin it didn't install, rustup among them"
+        type: boolean
+        required: false
+        default: true
       timeout-minutes:
         description: "Timeout of each leg"
         type: number
@@ -233,6 +238,7 @@ jobs:
           key: ${{ steps.cache-profile.outputs.key }}
           save-if: ${{ github.event_name != 'pull_request' && (github.ref_name == github.event.repository.default_branch || (inputs.cache-save-on-dispatch && github.event_name == 'workflow_dispatch')) }}
           cache-on-failure: true
+          cache-bin: ${{ inputs.cache-bin }}
 
       - name: Gate
         shell: bash
